@@ -124,6 +124,31 @@ object List { // `List` companion object. Contains functions for creating and wo
   }
 
   def map[A,B](l: List[A])(f: A => B): List[B] = foldRight(l, List[B]())((item, acc) => Cons(f(item), acc))
+
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
+    foldRight(as, List[A]())((item, acc) => if (f(item)) Cons(item, acc) else acc)
+
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] =
+    flatMap(as)(x => if(f(x)) List(x) else Nil)
+
+  def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] =
+    listConcat(map(as)( item => f(item)))
+
+  def pairs(l1: List[Int], l2: List[Int]): List[Int] = {
+    (l1, l2) match {
+      case (Cons(h1,t1), Cons(h2,t2)) => Cons(h1+h2, pairs(t1,t2))
+      case (_, _) => Nil
+    }
+  }
+
+  def zipWith[A,B,C](l1: List[A], l2: List[B])(f:(A,B) => C): List[C] = {
+    (l1, l2) match {
+      case(_, Nil) => Nil
+      case(Nil,_ ) => Nil
+      case(Cons(h1,t1), Cons(h2,t2)) => Cons(f(h1, h2), zipWith(t1,t2)(f))
+    }
+  }
+
 }
 
 object Main {
@@ -134,6 +159,8 @@ object Main {
     val l3 = List(7,8,2,0)
     val lists = List(l1,l2,l3)
     val l4 = List(3.4, 5.6, 12.1)
+    val l5 = List("a","b","c")
+    val l6 = List("x", "y", "z")
     assert(List.append(l1, l2) == List(1,4,7,3,1,2))
     assert(List.tail(l1) == List(4,7))
     assert(List.setHead(l1, 19) == List(19, 4,7))
@@ -152,5 +179,11 @@ object Main {
     assert(List.addOneLists(l1) == List(2,5,8))
     assert(List.doubleToString(l4) == List("3.4", "5.6", "12.1"))
     assert(List.map(l1)(_.toString + "**") == List("1**", "4**", "7**"))
+    assert(List.filter(l1)(_%2 == 0) == List(4))
+    assert(List.flatMap(l1)(x => List(x + "£")) == List("1£", "4£", "7£"))
+    assert(List.filter2(l1)(_%2 != 0) == List(1,7))
+    assert(List.pairs(l1,l2) == List(4,5,9))
+    assert(List.zipWith(l1, l2)(_ + _) == List(4,5,9))
+    assert(List.zipWith(l5, l6)(_ + _) == List("ax","by","cz"))
   }
 }
