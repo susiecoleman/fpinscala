@@ -44,6 +44,7 @@ object Option {
   def mean(xs: Seq[Double]): Option[Double] =
     if (xs.isEmpty) None
     else Some(xs.sum / xs.length)
+
   def variance(xs: Seq[Double]): Option[Double] = mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
 
   def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = {
@@ -68,9 +69,34 @@ object Main {
   def main(args: Array[String]): Unit = {
     val l1 = List(Some(1), None, Some(5))
     val l2 = List(Some(1), Some(4), Some(5))
+
+    val none: Option[Int] = None
+    val opt1 = Some(3)
+
+    assert(opt1.map(_*2)  == Some(6))
+    assert(none.map(_*2)  == None)
+
+    assert(opt1.getOrElse("none")  == 3)
+    assert(none.getOrElse("none")  == "none")
+
+    assert(opt1.flatMap(x => Some(x * 2))  == Some(6))
+    assert(none.flatMap(x => Some(x * 2))  == None)
+
+    assert(opt1.orElse(Some(-1)) == Some(3))
+    assert(none.orElse(Some(-1)) == Some(-1))
+
+    assert(opt1.filter(_%2 == 0) == None)
+    assert(opt1.filter(_%2 != 0) == Some(3))
+    assert(none.filter(_%2 != 0) == None)
+
+    val l = Seq[Double](4,7,4,5)
+    assert(Option.variance(l) == Some(1.5))
+    assert(Option.variance(Nil) == None)
+
     assert(Option.sequence(l1) == None)
-    assert(Option.sequence2(l1) == None)
     assert(Option.sequence(l2) == Some(List(1,4,5)))
+
     assert(Option.sequence2(l2) == Some(List(1,4,5)))
+    assert(Option.sequence2(l1) == None)
   }
 }
