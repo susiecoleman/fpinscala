@@ -98,5 +98,10 @@ object Main {
 
     assert(Option.sequence2(l2) == Some(List(1,4,5)))
     assert(Option.sequence2(l1) == None)
+
+    assert(Option.traverse(List(1,2,3))(x => Some(x + "*")) == Some(List("1*","2*","3*")))
+    assert(Option.traverse(List(1,2,3))(isEven) == None)
   }
+
+  def isEven(x: Int): Option[Int] = if(x % 2 == 0) Some(x) else None
 }
