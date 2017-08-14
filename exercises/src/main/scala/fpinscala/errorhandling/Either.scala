@@ -28,9 +28,13 @@ case class Left[+E](get: E) extends Either[E,Nothing]
 case class Right[+A](get: A) extends Either[Nothing,A]
 
 object Either {
-  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = ???
+  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] =
+    es match {
+      case Nil => Right(Nil)
+      case h::t => (f(h) map2 traverse(t)(f))(_ :: _)
+    }
 
-  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = ???
+  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = traverse(es)(identity)
 
   def mean(xs: IndexedSeq[Double]): Either[String, Double] = 
     if (xs.isEmpty) 
@@ -66,5 +70,11 @@ object MainEither {
     assert(Left(5).map2(Right("goodbye"))((x,y) => s"$x $y") == Left(5))
     assert(Left(5).map2(Left(10))((x,y) => s"$x $y") == Left(5))
     assert(Right("hello").map2(Left(10))((x,y) => s"$x $y") == Left(10))
+
+    val l1 = List(Right(1), Right(2), Right(3))
+    val l2 = List(Left("1"), Right(2))
+    assert(Either.traverse(l1)(_ => Right("hello")) == Right(List("hello", "hello", "hello")))
+    println(Either.traverse(l2)(_ => Right("hello")))
+//    assert(Either.traverse(l2)(_ => Right("hello")) == Left("1"))
   }
 }
