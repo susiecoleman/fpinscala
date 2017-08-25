@@ -56,6 +56,8 @@ object MainEither {
 
   def test(x: Int): Int = x + 3
 
+  def evenIsGreat(x: Int) = if (x % 2 == 0) Right(x) else Left("error")
+
   def main(args: Array[String]): Unit = {
     assert(Right(5).map(_ + 6) == Right(11))
     assert(Left(5).map(test) == Left(5))
@@ -71,10 +73,10 @@ object MainEither {
     assert(Left(5).map2(Left(10))((x,y) => s"$x $y") == Left(5))
     assert(Right("hello").map2(Left(10))((x,y) => s"$x $y") == Left(10))
 
-    val l1 = List(Right(1), Right(2), Right(3))
-    val l2 = List(Left("1"), Right(2))
-    assert(Either.traverse(l1)(_ => Right("hello")) == Right(List("hello", "hello", "hello")))
-    println(Either.traverse(l2)(_ => Right("hello")))
-//    assert(Either.traverse(l2)(_ => Right("hello")) == Left("1"))
+    val l1 = List(1,2)
+    val l2 = List(2,4)
+
+    assert(Either.traverse(l1)(evenIsGreat) == Left("error"))
+    assert(Either.traverse(l2)(evenIsGreat) == Right(List(2,4)))
   }
 }
