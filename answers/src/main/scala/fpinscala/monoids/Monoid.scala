@@ -9,6 +9,12 @@ trait Monoid[A] {
   def zero: A
 }
 
+object Main{
+  def main(args: Array[String]): Unit = {
+    Monoid.foldLeft()
+  }
+}
+
 object Monoid {
 
   val stringMonoid = new Monoid[String] {
@@ -95,8 +101,10 @@ object Monoid {
 
   // The function type `(A, B) => B`, when curried, is `A => (B => B)`.
   // And of course, `B => B` is a monoid for any `B` (via function composition).
-  def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
-    foldMap(as, endoMonoid[B])(f.curried)(z)
+  def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B = {
+    val x: B => B = (f.curried)(z)
+    foldMap(as, endoMonoid[B])(x)
+  }
 
   // Folding to the left is the same except we flip the arguments to
   // the function `f` to put the `B` on the correct side.
